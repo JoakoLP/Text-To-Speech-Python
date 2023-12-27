@@ -15,8 +15,8 @@ root.configure(bg="#305065")
 engine = pyttsx3.init()
 
 
-# Read function
-def read_text():
+# Voice setter
+def setvoice():
   text = text_area.get(1.0,END)
   selected_voice = voice_combobox.get()
   speed = speed_combobox.get()
@@ -24,12 +24,6 @@ def read_text():
   for voice in voices:
     if selected_voice == voice.name:
       selected_voice = voice.id
-
-  def setvoice():
-    engine.setProperty('voice',selected_voice)
-    engine.say(text)
-    engine.runAndWait()
-
   if(text and selected_voice):
     if(speed=="Fast"):
       engine.setProperty('rate',250)
@@ -37,39 +31,35 @@ def read_text():
       engine.setProperty('rate',150)
     if(speed=="Slow"):
       engine.setProperty('rate',75)
-    setvoice()
+    engine.setProperty('voice',selected_voice)
+    engine.say(text)
+    return True, text
+  else:
+    return False
+
+
+# Read function
+def read_text():
+  runs, text = setvoice()
+  if runs == True:
+    engine.runAndWait()
 
 
 
 # Save function
 def save():
-  text = text_area.get(1.0,END)
-  selected_voice = voice_combobox.get()
-  speed = speed_combobox.get()
-  voices = engine.getProperty('voices')
-  for voice in voices:
-    if selected_voice == voice.name:
-      selected_voice = voice.id
-
-  def setvoice(): 
-    engine.setProperty('voice',selected_voice)
-    engine.say(text)
+  runs, text = setvoice()
+  if runs == True:
     path = filedialog.asksaveasfilename(filetypes=[("MP3","*.mp3"),("WAV","*.wav")],defaultextension=".mp3")
     filename = path.split("/")[-1]
     print(filename)
     path = path.removesuffix(filename)
     print(path)
     os.chdir(path)
+    print(text)
     engine.save_to_file(text, filename)
+    engine.runAndWait()
 
-  if(text and selected_voice):
-    if(speed=="Fast"):
-      engine.setProperty('rate',250)
-    if(speed=="Normal"):
-      engine.setProperty('rate',150)
-    if(speed=="Slow"):
-      engine.setProperty('rate',75)
-    setvoice()
 
 
 # Sizes
