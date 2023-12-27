@@ -14,6 +14,7 @@ root.configure(bg="#305065")
 
 engine = pyttsx3.init()
 
+
 # Read function
 def read_text():
   text = text_area.get(1.0,END)
@@ -53,15 +54,22 @@ def save():
   def setvoice():
     if (gender == 'Male'):
       engine.setProperty('voice',voices[0].id)
-      path = filedialog.askdirectory()
+      path = filedialog.asksaveasfilename(filetypes=[("MP3","*.mp3"),("WAV","*.wav")],defaultextension=".mp3")
+      filename = path.split("/")[-1]
+      print(filename)
+      path = path.removesuffix(filename)
+      print(path)
       os.chdir(path)
-      engine.save_to_file(text, 'text.mp3')
+      engine.save_to_file(text, filename)
       engine.runAndWait()
     else:
       engine.setProperty('voice',voices[1].id)
-      path = filedialog.askdirectory()
+      path = filedialog.asksaveasfilename(filetypes=[("MP3","*.mp3"),("WAV","*.wav")],defaultextension=".mp3")
+      filename = path.split("/")[-1]
+      print(filename)
+      path = path.removesuffix(filename)
       os.chdir(path)
-      engine.save_to_file(text, 'text.mp3')
+      engine.save_to_file(text, filename)
       engine.runAndWait()
 
   if(text):
@@ -139,7 +147,7 @@ btn.place(x=550,y=280)
 image_download = Image.open("save.png")
 image_download_resize = image_download.resize(new_size_2)
 image_save = ImageTk.PhotoImage(image_download_resize)
-save=Button(root,text=" Save!",compound="left",image=image_save,width=130,font="arial 14 bold",command=read_text())
+save=Button(root,text=" Save!",compound="left",image=image_save,width=130,font="arial 14 bold",command=save)
 save.place(x=730,y=280)
 
 
