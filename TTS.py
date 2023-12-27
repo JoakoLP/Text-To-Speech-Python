@@ -18,70 +18,58 @@ engine = pyttsx3.init()
 # Read function
 def read_text():
   text = text_area.get(1.0,END)
-  gender = gender_combobox.get()
+  selected_voice = voice_combobox.get()
   speed = speed_combobox.get()
-  print({text},{gender},{speed})
   voices = engine.getProperty('voices')
-  print(len(voices))
-  print(voices[0])
-  def setvoice():
-    if (gender == 'Male'):
-      engine.setProperty('voice',voices[0].id)
-      engine.say(text)
-      engine.runAndWait()
-    else:
-      engine.setProperty('voice',voices[1].id)
-      engine.say(text)
-      engine.runAndWait()
+  for voice in voices:
+    if selected_voice == voice.name:
+      selected_voice = voice.id
 
-  if(text):
+  def setvoice():
+    engine.setProperty('voice',selected_voice)
+    engine.say(text)
+    engine.runAndWait()
+
+  if(text and selected_voice):
     if(speed=="Fast"):
       engine.setProperty('rate',250)
-      setvoice()
     if(speed=="Normal"):
       engine.setProperty('rate',150)
-      setvoice()
     if(speed=="Slow"):
       engine.setProperty('rate',75)
-      setvoice()
+    setvoice()
+
+
 
 # Save function
 def save():
   text = text_area.get(1.0,END)
-  gender = gender_combobox.get()
+  selected_voice = voice_combobox.get()
   speed = speed_combobox.get()
   voices = engine.getProperty('voices')
-  def setvoice():
-    if (gender == 'Male'):
-      engine.setProperty('voice',voices[0].id)
-      path = filedialog.asksaveasfilename(filetypes=[("MP3","*.mp3"),("WAV","*.wav")],defaultextension=".mp3")
-      filename = path.split("/")[-1]
-      print(filename)
-      path = path.removesuffix(filename)
-      print(path)
-      os.chdir(path)
-      engine.save_to_file(text, filename)
-      engine.runAndWait()
-    else:
-      engine.setProperty('voice',voices[1].id)
-      path = filedialog.asksaveasfilename(filetypes=[("MP3","*.mp3"),("WAV","*.wav")],defaultextension=".mp3")
-      filename = path.split("/")[-1]
-      print(filename)
-      path = path.removesuffix(filename)
-      os.chdir(path)
-      engine.save_to_file(text, filename)
-      engine.runAndWait()
+  for voice in voices:
+    if selected_voice == voice.name:
+      selected_voice = voice.id
 
-  if(text):
+  def setvoice(): 
+    engine.setProperty('voice',selected_voice)
+    engine.say(text)
+    path = filedialog.asksaveasfilename(filetypes=[("MP3","*.mp3"),("WAV","*.wav")],defaultextension=".mp3")
+    filename = path.split("/")[-1]
+    print(filename)
+    path = path.removesuffix(filename)
+    print(path)
+    os.chdir(path)
+    engine.save_to_file(text, filename)
+
+  if(text and selected_voice):
     if(speed=="Fast"):
       engine.setProperty('rate',250)
-      setvoice()
     if(speed=="Normal"):
       engine.setProperty('rate',150)
-      setvoice()
     if(speed=="Slow"):
       engine.setProperty('rate',75)
-      setvoice()
+    setvoice()
 
 
 # Sizes
@@ -91,9 +79,6 @@ new_size_2 = (30,30)
 
 # Icon
 image_icon = Image.open("speak-icon.png")
-# image_icon = ImageTk.PhotoImage(image_icon)
-# image_icon = PhotoImage(file="speak-icon.png")
-# root.iconphoto(False,image_icon)
 root.iconphoto(False,ImageTk.PhotoImage(image_icon))
 
 
@@ -105,7 +90,6 @@ Top_frame.place(x=0,y=0)
 mic = Image.open("mic.png")
 resize_mic = mic.resize(new_size_1)
 logo = ImageTk.PhotoImage(resize_mic)
-# Logo = PhotoImage(file="mic.png")
 Label(Top_frame,image=logo,bg="white").place(x=15,y=10)
 
 # Title
@@ -119,18 +103,25 @@ text_area = Text(root,font="Robote 20",bg="white",relief=GROOVE,wrap=WORD)
 text_area.place(x=10,y=150,width=500,height=250)
 
 
-# Voice selector
-Label(root,text="VOICE",font="arial 15 bold",bg="#305065",fg="white").place(x=580,y=160)
-gender_combobox =Combobox(root,values=['Male','Female'],font="arial 14",state='r',width=10)
-gender_combobox.place(x=550,y=200)
-gender_combobox.set('Male')
 
+# # Selectors
 
 # Speed selector
-Label(root,text="SPEED",font="arial 15 bold",bg="#305065",fg="white").place(x=760,y=160)
-speed_combobox =Combobox(root,values=['Fast','Normal','Slow'],font="arial 14",state='r',width=10)
-speed_combobox.place(x=730,y=200)
+Label(root,text="SPEED",font="arial 12 bold",bg="#305065",fg="white").place(x=545,y=175)
+speed_combobox =Combobox(root,values=['Fast','Normal','Slow'],state='r',width=10)
+speed_combobox.place(x=550,y=200)
 speed_combobox.set('Normal')
+
+
+# Voice selector
+Label(root,text="VOICE",font="arial 12 bold",bg="#305065",fg="white").place(x=545,y=245)
+voices = []
+sys_voices = engine.getProperty("voices")
+for voice in sys_voices:
+  voices.append(voice.name)
+voice_combobox = Combobox(root,values=voices,state='r',width=50)
+voice_combobox.place(x=550,y=270)
+voice_combobox.set(voices[0])
 
 
 
@@ -138,7 +129,7 @@ speed_combobox.set('Normal')
 image_icon_resize = image_icon.resize(new_size_2)
 image_button = ImageTk.PhotoImage(image_icon_resize)
 btn=Button(root,text=" Speak!",compound="left",image=image_button,width=130,font="arial 14 bold",command=read_text)
-btn.place(x=550,y=280)
+btn.place(x=550,y=320)
 
 
 
@@ -148,7 +139,7 @@ image_download = Image.open("save.png")
 image_download_resize = image_download.resize(new_size_2)
 image_save = ImageTk.PhotoImage(image_download_resize)
 save=Button(root,text=" Save!",compound="left",image=image_save,width=130,font="arial 14 bold",command=save)
-save.place(x=730,y=280)
+save.place(x=730,y=320)
 
 
 
